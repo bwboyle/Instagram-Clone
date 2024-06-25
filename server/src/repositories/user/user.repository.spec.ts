@@ -1,10 +1,10 @@
-import DbConfig from "../configs/db.config";
-import UserService from "./user.service";
-import { User } from "../models/user.model";
+import DbConfig from "../../configs/db.config";
+import UserRepository from "./user.repository";
+import { User } from "../../models/user.model";
 import { MongooseError } from "mongoose";
 
-describe("User Service", () => {
-  let userService: UserService;
+describe("User Repository", () => {
+  let userRepository: UserRepository;
   let userData = {
     name: "John Doe",
     email: "john@email.com",
@@ -12,7 +12,7 @@ describe("User Service", () => {
   };
   beforeAll(async () => {
     await DbConfig.connect("test");
-    userService = new UserService(User);
+    userRepository = new UserRepository(User);
   });
 
   afterAll(async () => {
@@ -22,27 +22,27 @@ describe("User Service", () => {
   });
 
   test("should create a new user", async () => {
-    const result = await userService.create(userData);
+    const result = await userRepository.create(userData);
     expect(result.email).toEqual(userData.email);
     expect(result.name).toEqual(userData.name);
   });
 
-  test("should not create a new user if it already exists", async () => {
+  test("should thhrow error if user already exists", async () => {
     // Email must be unique for each user
     try {
-      const result = await userService.create(userData);
+      const result = await userRepository.create(userData);
     } catch (error: any) {
       expect(error.message).toContain("E11000 duplicate key");
     }
   });
 
-  test("should not create a new user if given invalid data", async () => {
+  test("should throw error if user data is invalid", async () => {
     userData.name = "";
     userData.email = "";
     userData.password = "";
-    // Email must be unique for each user
+
     try {
-      const result = await userService.create(userData);
+      const result = await userRepository.create(userData);
     } catch (error: any) {
       expect(error.message).toContain("User validation failed");
     }

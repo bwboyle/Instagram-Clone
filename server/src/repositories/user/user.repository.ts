@@ -1,8 +1,8 @@
 import { Model, MongooseError } from "mongoose";
-import { IUser, User } from "../models/user.model";
-import { IService } from "./user.service.interface";
+import { IUser } from "../../models/user.model";
+import { IRepository } from "./user.repository.interface";
 
-export default class UserService implements IService {
+export default class UserRepository implements IRepository {
   constructor(private readonly userModel: Model<IUser>) {}
 
   async create(userData: IUser): Promise<IUser> {
