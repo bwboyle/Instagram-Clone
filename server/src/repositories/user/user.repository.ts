@@ -9,7 +9,6 @@ export default class UserRepository implements IRepository<IUser> {
   }
 
   async create(userData: IUser): Promise<IUser> {
-    console.log(userData);
     const newUser = new this.userModel(userData);
     return newUser.save();
   }
