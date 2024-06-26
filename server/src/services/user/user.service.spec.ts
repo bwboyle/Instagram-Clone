@@ -16,9 +16,6 @@ describe("User Service", () => {
     userRepository = new UserRepository();
     userService = new UserService(userRepository);
 
-    // Mock the hashPassword function in password.utils
-    hashPassword.prototype = jest.fn().mockResolvedValue("hashedPassword123");
-
     // Mock the user repository to return the test user
     userRepository.create = jest.fn().mockResolvedValue(
       new User({
@@ -37,6 +34,6 @@ describe("User Service", () => {
     expect(result.name).toEqual(testUser.name);
     expect(result.email).toEqual(result.email);
     // Password should be hashed
-    expect(result.password).not.toEqual("password123");
+    expect(result.password).toEqual("hashedPassword123");
   });
 });
