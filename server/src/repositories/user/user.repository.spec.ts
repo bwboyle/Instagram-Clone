@@ -2,6 +2,9 @@ import DbConfig from "../../configs/db.config";
 import { User } from "../../models/user.model";
 import UserRepository from "./user.repository";
 
+// Create a mocking of the user model for testing
+jest.mock("../../models/user.model");
+
 describe("User Repository", () => {
   let userRepository: UserRepository;
   let testUser = {
@@ -10,16 +13,15 @@ describe("User Repository", () => {
     password: "password123",
   };
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     // Mock new User.save() to return the test user
-    jest
-      .spyOn(User.prototype, "save")
-      .mockImplementationOnce(() => Promise.resolve(new User(testUser)));
-
-    userRepository = new UserRepository(User);
+    (User as unknown as jest.Mock).mockImplementation(() => ({
+      save: jest.fn().mockResolvedValue(testUser),
+    }));
+    userRepository = new UserRepository();
   });
 
-  afterEach(() => {
+  afterAll(() => {
     jest.restoreAllMocks();
   });
 
@@ -31,13 +33,10 @@ describe("User Repository", () => {
 
   test("should thhrow error if user already exists", async () => {
     // Mock User.save() to throw duplicate key error
-    jest
-      .spyOn(User.prototype, "save")
-      .mockImplementationOnce(() =>
-        Promise.reject(new Error("E11000 duplicate key"))
-      );
+    (User as unknown as jest.Mock).mockImplementation(() => ({
+      save: jest.fn().mockRejectedValue(Error("E11000 duplicate key")),
+    }));
 
-    // Email must be unique for each user
     try {
       const result = await userRepository.create(testUser);
     } catch (error: any) {
@@ -47,14 +46,14 @@ describe("User Repository", () => {
 
   test("should throw error if user data is invalid", async () => {
     // Mock User.save() to throw validation error
-    jest
-      .spyOn(User.prototype, "save")
-      .mockImplementationOnce(() =>
-        Promise.reject(new Error("User validation failed"))
-      );
+    (User as unknown as jest.Mock).mockImplementation(() => ({
+      save: jest.fn().mockRejectedValue(Error("User validation failed")),
+    }));
+
     testUser.name = "";
     testUser.email = "";
     testUser.password = "";
+
     try {
       const result = await userRepository.create(testUser);
     } catch (error: any) {
