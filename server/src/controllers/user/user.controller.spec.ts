@@ -13,8 +13,6 @@ describe("User Controller", () => {
     email: "john@email.com",
     password: "password123",
   };
-  //   let userService: UserService;
-  //   let userController: UserController;
   let request: TestAgent;
 
   beforeAll(() => {
@@ -48,6 +46,7 @@ describe("User Controller", () => {
   test("should respond with 500 and error if user was not created", async () => {
     // Mock the user service to return the test user
     UserService.prototype.create = jest.fn().mockRejectedValue(new Error());
+
     const response = await request.post("/api/user").send({});
     expect(response.status).toEqual(500);
     expect(response.body.error).not.toBeNull();
