@@ -9,8 +9,7 @@ export default class UserController implements IController<IUser> {
   async create(req: Request, res: Response): Promise<void> {
     try {
       const newUser = await this.userService.create(req.body);
-      console.log(newUser);
-      res.status(200).json({});
+      res.status(200).json(newUser);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
