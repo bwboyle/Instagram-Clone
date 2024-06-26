@@ -7,7 +7,7 @@ configDotenv({ path: resolve(__dirname, ".env") });
 export default class DbConfig {
   private static connection: Mongoose;
 
-  static async connect(dbName: string) {
+  static async connect(dbName: string): Promise<void> {
     // Don't connect if given invalid database name
     if (!dbName || dbName.length === 0) {
       throw new Error("Invalid database name");
@@ -17,11 +17,11 @@ export default class DbConfig {
     this.connection = await mongoose.connect(mongoUri);
   }
 
-  static getDbName() {
+  static getDbName(): string {
     return this.connection.connections[0].db.namespace;
   }
 
-  static async disconnect() {
+  static async disconnect(): Promise<void> {
     await mongoose.disconnect();
   }
 }
