@@ -11,10 +11,10 @@ describe("User Repository", () => {
     name: "John Doe",
     email: "john@email.com",
     password: "password123",
-  };
+  } as unknown as IUser;
 
   beforeAll(async () => {
-    userRepository = new UserRepository();
+    userRepository = new UserRepository(User);
   });
 
   afterAll(() => {
@@ -52,14 +52,11 @@ describe("User Repository", () => {
         save: jest.fn().mockRejectedValue(Error("User validation failed")),
       }));
 
-      // testUser.name = "";
-      // testUser.email = "";
-      // testUser.password = "";
-      const emptyUser: IUser = {
+      const emptyUser = {
         name: "",
         email: "",
         password: "",
-      };
+      } as unknown as IUser;
 
       try {
         await userRepository.create(emptyUser);
