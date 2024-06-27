@@ -1,22 +1,29 @@
 import { IUser } from "../../models/user.model";
 import { IService } from "../service.interface";
 import UserRepository from "../../repositories/user/user.repository";
-import { hashPassword } from "../../utils/password.utils";
+import { hashPassword, validPassword } from "../../utils/password.utils";
+import Service from "../service";
 
-export default class UserService implements IService<IUser> {
-  constructor(private userRepository: UserRepository) {}
-
+export default class UserService extends Service<IUser> {
   async create(user: IUser): Promise<IUser> {
-    // Salt password before saving new user
+    // Salt password before saving user
     user.password = await hashPassword(user.password);
-    return await this.userRepository.create(user);
+    return super.create(user);
   }
 
-  async find(filter: Partial<IUser>): Promise<IUser[]> {
-    return await this.userRepository.find(filter);
-  }
+  async login(email: string, password: string): Promise<IUser> {
+    const user = (await super.find({ email: email }))[0];
 
-  // async login(email: string, password: string): Promise<IUser> {
-  //   const user = await this.find({ email: email });
-  // }
+    // If password is correct, return user
+    if (user) {
+      if (await validPassword(user.password, password)) {
+        return user;
+      }
+      throw new Error("Incorrect password");
+    } else {
+      throw new Error("User does not exist");
+    }
+
+    // Otherwise, throw error
+  }
 }

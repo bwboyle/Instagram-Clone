@@ -15,7 +15,7 @@ describe("User Service", () => {
 
   beforeAll(() => {
     testUser = new User(testUserData);
-    userRepository = new UserRepository();
+    userRepository = new UserRepository(User);
     userService = new UserService(userRepository);
   });
 
@@ -32,18 +32,17 @@ describe("User Service", () => {
       expect(result.name).toEqual(testUser.name);
       expect(result.email).toEqual(result.email);
       // Password should be hashed
-      expect(result.password).not.toEqual(testUserData.password);
+      expect(result.password).not.toEqual("password123");
     });
   });
 
-  describe("find", () => {
-    test("should find all users with the same name", async () => {
+  describe("login", () => {
+    test("should login user with correct credentials", async () => {
       // Mock userRepository.find to return array containing test user
-      userRepository.find = jest.fn().mockResolvedValue([testUser, testUser]);
+      userRepository.find = jest.fn().mockResolvedValue([testUser]);
 
-      const result = await userService.find({ email: testUser.name });
-      expect(result.length).toEqual(2);
-      expect(result[0]).toEqual(result[1]);
+      const result = await userService.login(testUser.email, "password123");
+      expect(result).toEqual(testUser);
     });
   });
 });

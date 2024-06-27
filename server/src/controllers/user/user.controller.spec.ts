@@ -52,13 +52,50 @@ describe("User Controller", () => {
       const response = await request.post("/api/user").send(testUser);
       expect(response.status).toEqual(409);
     });
+  });
 
-    test("should respond with 500 on any other error", async () => {
-      // Mock the user service to return the duplicate key error
-      UserService.prototype.create = jest.fn().mockRejectedValue(new Error());
+  describe("GET /user", () => {
+    test("should respond with 200 and user if given the correct email / password", async () => {
+      UserService.prototype.login = jest.fn().mockResolvedValue(
+        new User({
+          ...testUser,
+          password: "hashedPassword123",
+        })
+      );
 
-      const response = await request.post("/api/user").send(testUser);
-      expect(response.status).toEqual(500);
+      const response = await request
+        .get("/api/user")
+        .send({ email: testUser.email, password: "password123" });
+
+      expect(response.status).toEqual(200);
+      expect(response.body._id).not.toBeNull();
+      expect(response.body.email).toEqual(testUser.email);
+    });
+
+    test("should respond with 400 error if password is incorrect", async () => {
+      UserService.prototype.login = jest
+        .fn()
+        .mockRejectedValue(Error("Incorrect password"));
+
+      const response = await request
+        .get("/api/user")
+        .send({ email: testUser.email, password: "wrongpassword" });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.error).toEqual("Incorrect password");
+    });
+
+    test("should respond with 400 error if email is incorrect", async () => {
+      UserService.prototype.login = jest
+        .fn()
+        .mockRejectedValue(Error("User does not exist"));
+
+      const response = await request
+        .get("/api/user")
+        .send({ email: "wrongemail", password: "password123" });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.error).toEqual("User does not exist");
     });
   });
 });

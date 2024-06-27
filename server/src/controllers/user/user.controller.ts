@@ -12,10 +12,22 @@ export default class UserController implements IController<IUser> {
       // Attempt to create new user, return JSON data if successful
       const newUser = await this.userService.create(req.body);
       res.status(200).json(newUser);
-    } catch (error) {
+    } catch (error: any) {
       // Get status code and message from error handler
-      const [status, message] = errorHandler(error as unknown as Error);
-      res.status(status).json({ error: message });
+      errorHandler(res, error);
+    }
+  }
+
+  async login(req: Request, res: Response): Promise<void> {
+    try {
+      const user = await this.userService.login(
+        req.body.email,
+        req.body.password
+      );
+      res.status(200).json(user);
+    } catch (error: any) {
+      // Get status code and message from error handler
+      errorHandler(res, error);
     }
   }
 }
