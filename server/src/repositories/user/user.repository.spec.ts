@@ -1,5 +1,5 @@
 import DbConfig from "../../configs/db.config";
-import { User } from "../../models/user.model";
+import { IUser, User } from "../../models/user.model";
 import UserRepository from "./user.repository";
 
 // Create a mocking of the user model for testing
@@ -14,10 +14,6 @@ describe("User Repository", () => {
   };
 
   beforeAll(async () => {
-    // Mock new User.save() to return the test user
-    (User as unknown as jest.Mock).mockImplementation(() => ({
-      save: jest.fn().mockResolvedValue(testUser),
-    }));
     userRepository = new UserRepository();
   });
 
@@ -25,39 +21,73 @@ describe("User Repository", () => {
     jest.restoreAllMocks();
   });
 
-  test("should create a new user", async () => {
-    const result = await userRepository.create(testUser);
-    expect(result.email).toEqual(testUser.email);
-    expect(result.name).toEqual(testUser.name);
-  });
+  describe("create", () => {
+    test("should create a new user", async () => {
+      // Mock new User.save() to return the test user
+      (User as unknown as jest.Mock).mockImplementation(() => ({
+        save: jest.fn().mockResolvedValue(testUser),
+      }));
 
-  test("should throw error if user already exists", async () => {
-    // Mock User.save() to throw duplicate key error
-    (User as unknown as jest.Mock).mockImplementation(() => ({
-      save: jest.fn().mockRejectedValue(Error("E11000 duplicate key")),
-    }));
-
-    try {
       const result = await userRepository.create(testUser);
-    } catch (error: any) {
-      expect(error.message).toContain("E11000 duplicate key");
-    }
+      expect(result.email).toEqual(testUser.email);
+      expect(result.name).toEqual(testUser.name);
+    });
+
+    test("should throw error if user already exists", async () => {
+      // Mock User.save() to throw duplicate key error
+      (User as unknown as jest.Mock).mockImplementation(() => ({
+        save: jest.fn().mockRejectedValue(Error("E11000 duplicate key")),
+      }));
+
+      try {
+        await userRepository.create(testUser);
+      } catch (error: any) {
+        expect(error.message).toContain("E11000 duplicate key");
+      }
+    });
+
+    test("should throw error if user data is invalid", async () => {
+      // Mock User.save() to throw validation error
+      (User as unknown as jest.Mock).mockImplementation(() => ({
+        save: jest.fn().mockRejectedValue(Error("User validation failed")),
+      }));
+
+      // testUser.name = "";
+      // testUser.email = "";
+      // testUser.password = "";
+      const emptyUser: IUser = {
+        name: "",
+        email: "",
+        password: "",
+      };
+
+      try {
+        await userRepository.create(emptyUser);
+      } catch (error: any) {
+        expect(error.message).toContain("User validation failed");
+      }
+    });
   });
 
-  test("should throw error if user data is invalid", async () => {
-    // Mock User.save() to throw validation error
-    (User as unknown as jest.Mock).mockImplementation(() => ({
-      save: jest.fn().mockRejectedValue(Error("User validation failed")),
-    }));
+  describe("find", () => {
+    test("should only find one user when given email", async () => {
+      // Mock User.find to return the test user
+      User.find = jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue([testUser]),
+      });
 
-    testUser.name = "";
-    testUser.email = "";
-    testUser.password = "";
+      const users = await userRepository.find({ email: testUser.email });
+      expect(users.length).toEqual(1);
+      expect(users[0]).toEqual(testUser);
+    });
+    test("should find multiple users with the same name", async () => {
+      User.find = jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue([testUser, testUser]),
+      });
 
-    try {
-      await userRepository.create(testUser);
-    } catch (error: any) {
-      expect(error.message).toContain("User validation failed");
-    }
+      const users = await userRepository.find({ name: testUser.name });
+      expect(users.length).toEqual(2);
+      expect(users[0].name).toEqual(users[1].name);
+    });
   });
 });

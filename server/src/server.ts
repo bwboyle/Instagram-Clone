@@ -4,7 +4,7 @@ import DbConfig from "./configs/db.config";
 const PORT = process.env.PORT || 3000;
 
 /* Connect to MongoDB */
-DbConfig.connect("test")
+DbConfig.connect("dev")
   .then(() => {
     // Start the server
     app.listen(PORT, () => {
