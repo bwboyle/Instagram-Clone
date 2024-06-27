@@ -31,7 +31,7 @@ describe("User Repository", () => {
     expect(result.name).toEqual(testUser.name);
   });
 
-  test("should thhrow error if user already exists", async () => {
+  test("should throw error if user already exists", async () => {
     // Mock User.save() to throw duplicate key error
     (User as unknown as jest.Mock).mockImplementation(() => ({
       save: jest.fn().mockRejectedValue(Error("E11000 duplicate key")),
@@ -55,7 +55,7 @@ describe("User Repository", () => {
     testUser.password = "";
 
     try {
-      const result = await userRepository.create(testUser);
+      await userRepository.create(testUser);
     } catch (error: any) {
       expect(error.message).toContain("User validation failed");
     }

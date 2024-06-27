@@ -1,9 +1,6 @@
 import supertest from "supertest";
 import { User } from "../../models/user.model";
-import UserRepository from "../../repositories/user/user.repository";
 import UserService from "../../services/user/user.service";
-import { hashPassword } from "../../utils/password.utils";
-import UserController from "./user.controller";
 import app from "../../app";
 import TestAgent from "supertest/lib/agent";
 
@@ -43,12 +40,23 @@ describe("User Controller", () => {
     expect(response.body.password).toEqual("hashedPassword123");
   });
 
-  test("should respond with 500 and error if user was not created", async () => {
-    // Mock the user service to return the test user
+  test("should respond with 409 if user with that email already exists", async () => {
+    // Mock the user service to return the duplicate key error
+    UserService.prototype.create = jest
+      .fn()
+      .mockRejectedValue(
+        new Error("E11000 duplicate key error for test.users")
+      );
+
+    const response = await request.post("/api/user").send(testUser);
+    expect(response.status).toEqual(409);
+  });
+
+  test("should respond with 500 on any other error", async () => {
+    // Mock the user service to return the duplicate key error
     UserService.prototype.create = jest.fn().mockRejectedValue(new Error());
 
-    const response = await request.post("/api/user").send({});
+    const response = await request.post("/api/user").send(testUser);
     expect(response.status).toEqual(500);
-    expect(response.body.error).not.toBeNull();
   });
 });
