@@ -1,17 +1,19 @@
 import DbConfig from "../../configs/db.config";
 import { IUser, User } from "../../models/user.model";
 import UserRepository from "./user.repository";
+import { Types } from "mongoose";
 
 // Create a mocking of the user model for testing
 jest.mock("../../models/user.model");
 
 describe("User Repository", () => {
   let userRepository: UserRepository;
-  let testUser = {
+  let testUser: IUser = {
+    id: new Types.ObjectId(),
     name: "John Doe",
     email: "john@email.com",
     password: "password123",
-  } as unknown as IUser;
+  };
 
   beforeAll(async () => {
     userRepository = new UserRepository(User);
@@ -23,21 +25,16 @@ describe("User Repository", () => {
 
   describe("create", () => {
     test("should create a new user", async () => {
-      // Mock new User.save() to return the test user
-      (User as unknown as jest.Mock).mockImplementation(() => ({
-        save: jest.fn().mockResolvedValue(testUser),
-      }));
+      // Mock new User.create() to return the test user
+      User.create = jest.fn().mockResolvedValue(testUser);
 
       const result = await userRepository.create(testUser);
-      expect(result.email).toEqual(testUser.email);
-      expect(result.name).toEqual(testUser.name);
+      expect(result).toEqual(testUser);
     });
 
     test("should throw error if user already exists", async () => {
-      // Mock User.save() to throw duplicate key error
-      (User as unknown as jest.Mock).mockImplementation(() => ({
-        save: jest.fn().mockRejectedValue(Error("E11000 duplicate key")),
-      }));
+      // Mock User.create() to throw duplicate key error
+      User.create = jest.fn().mockRejectedValue(Error("E11000 duplicate key"));
 
       try {
         await userRepository.create(testUser);
@@ -48,9 +45,9 @@ describe("User Repository", () => {
 
     test("should throw error if user data is invalid", async () => {
       // Mock User.save() to throw validation error
-      (User as unknown as jest.Mock).mockImplementation(() => ({
-        save: jest.fn().mockRejectedValue(Error("User validation failed")),
-      }));
+      User.create = jest
+        .fn()
+        .mockRejectedValue(Error("User validation failed"));
 
       const emptyUser = {
         name: "",

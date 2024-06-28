@@ -1,7 +1,8 @@
-import { model, Schema } from "mongoose";
+import { model, Schema, Types } from "mongoose";
 
 // 1. Create an interface representing a document in MongoDB.
-export interface IUser extends Document {
+export interface IUser {
+  id: Types.ObjectId;
   name: string;
   email: string;
   password: string;

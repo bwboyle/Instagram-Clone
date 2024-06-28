@@ -11,7 +11,13 @@ export default class UserController implements IController<IUser> {
     try {
       // Attempt to create new user, return JSON data if successful
       const newUser = await this.userService.create(req.body);
-      res.status(200).json(newUser);
+      // Return sanitized user and JWT
+      const response = {
+        user: this.userService.sanitizeUser(newUser),
+        token: this.userService.generateToken(newUser),
+      };
+      res.status(200).json(response);
+      // res.status(200).json(newUser);
     } catch (error: any) {
       // Get status code and message from error handler
       errorHandler(res, error);
@@ -24,7 +30,14 @@ export default class UserController implements IController<IUser> {
         req.body.email,
         req.body.password
       );
-      res.status(200).json(user);
+
+      // Respond with sanitized input and token
+      const response = {
+        user: this.userService.sanitizeUser(user),
+        token: this.userService.generateToken(user),
+      };
+
+      res.status(200).json(response);
     } catch (error: any) {
       // Get status code and message from error handler
       errorHandler(res, error);
