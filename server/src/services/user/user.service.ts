@@ -14,29 +14,37 @@ export default class UserService extends Service<IUser> {
   async create(user: IUser): Promise<IUser> {
     // Salt password before creating
     user.password = await hashPassword(user.password);
-
-    // Sanitize new user before returning
     return super.create(user);
   }
 
   async login(email: string, password: string): Promise<IUser> {
     const user = (await super.find({ email: email }))[0];
 
-    // If password is correct, return user
-    if (user) {
-      if (await validPassword(user.password, password)) {
-        return user;
-      }
-      throw new Error("Incorrect password");
-    } else {
-      throw new Error("User does not exist");
+    if (!user) {
+      throw Error("User does not exist");
     }
+
+    if (!(await validPassword(user.password, password))) {
+      throw Error("Incorrect password");
+    }
+
+    // If password is correct, return user
+    return user;
+
+    // if (user) {
+    //   if (await validPassword(user.password, password)) {
+    //     return user;
+    //   }
+    //   throw new Error("Incorrect password");
+    // } else {
+    //   throw new Error("User does not exist");
+    // }
   }
 
-  // Santize user by removing password from object
-  sanitizeUser(user: IUser) {
-    return { id: user.id, name: user.name, email: user.email };
-  }
+  // // Santize user by removing password from object
+  // sanitizeUser(user: IUser) {
+  //   return { id: user.id, name: user.name, email: user.email };
+  // }
 
   // Creates a JWT token for the given user
   generateToken(user: IUser): string {

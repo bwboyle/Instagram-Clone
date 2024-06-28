@@ -15,7 +15,6 @@ export default class DbConfig {
     // Add database dbName to the mongo URI
     const mongoUri = process.env.MONGODB_URI + dbName;
     this.connection = await mongoose.connect(mongoUri);
-    console.log("MongoDB connected");
   }
 
   static getDbName(): string {
