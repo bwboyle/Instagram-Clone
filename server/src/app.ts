@@ -16,11 +16,15 @@ const userController = new UserController(userService);
 
 /* Routes */
 app.post("/api/user", (req, res) => {
-  userController.create(req, res);
+  userController.signup(req, res);
 });
 
 app.get("/api/user", (req, res) => {
   userController.login(req, res);
+});
+
+app.get("/api/user/search", (req, res) => {
+  userController.search(req, res);
 });
 
 export default app;

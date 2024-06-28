@@ -26,30 +26,24 @@ describe("User Service", () => {
   });
 
   describe("create", () => {
-    test("should create a new user and sanitize it", async () => {
+    test("should create a new user", async () => {
       // Mock userRepository.create to return array containing test user
       userRepository.create = jest.fn().mockResolvedValue(testUser);
 
-      const result = await userService.create(testUser);
+      const result = await userService.signup(testUser);
       expect(result).toEqual(testUser);
-      // Verify correct values
-      // expect(result.id).toEqual(testUser.id);
-      // expect(result.name).toEqual(testUser.name);
-      // expect(result.email).toEqual(testUser.email);
-      // // Result should not contain the password
-      // expect(result.password).toBeUndefined();
     });
   });
 
   describe("login", () => {
-    test("should login user with correct credentials", async () => {
+    test("should return user if given correct credentials", async () => {
       // Mock userRepository.find to return array containing test user
       userRepository.find = jest.fn().mockResolvedValue([testUser]);
 
       const result = await userService.login(testUser.email, "password123");
       expect(result).toEqual(testUser);
     });
-    test("should not login user with incorrect credentials", async () => {
+    test("should not return user if given incorrect credentials", async () => {
       // Mock userRepository.find to return array containing test user
       userRepository.find = jest.fn().mockResolvedValue([testUser]);
 

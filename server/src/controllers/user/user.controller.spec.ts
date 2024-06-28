@@ -12,6 +12,7 @@ describe("User Controller", () => {
     password: "password123",
   };
   let request: TestAgent;
+  let token: string;
 
   beforeAll(async () => {
     await DbConfig.connect("test");
@@ -26,6 +27,7 @@ describe("User Controller", () => {
   });
 
   describe("POST /user", () => {
+    /* Signup tests */
     test("should respond with 200 and the newly created user", async () => {
       const response = await request.post("/api/user").send(testUser);
       expect(response.status).toEqual(200);
@@ -38,14 +40,18 @@ describe("User Controller", () => {
     });
   });
 
+  /* Login Tests */
   describe("GET /user", () => {
     test("should respond with 200 and user if given the correct email / password", async () => {
       const response = await request
         .get("/api/user")
         .send({ email: testUser.email, password: "password123" });
 
+      // Save the jwt token for future use in other test cases
+      token = response.body.token;
+
       expect(response.status).toEqual(200);
-      expect(response.body.token).not.toBeNull();
+      expect(token).not.toBeNull();
     });
 
     test("should respond with 400 error if password is incorrect", async () => {
@@ -64,6 +70,16 @@ describe("User Controller", () => {
 
       expect(response.status).toEqual(400);
       expect(response.body.error).toEqual("User does not exist");
+    });
+  });
+
+  /* Search test */
+  describe("GET user/search", () => {
+    test("should fail if request is unauthenticated", async () => {
+      // JWT should be present in the header
+      const response = await request
+        .get("/api/user/search")
+        .set("Authorization", "invalid");
     });
   });
 });
