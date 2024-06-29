@@ -1,5 +1,4 @@
 import { compare, hash } from "bcrypt";
-import { IUser } from "../models/user.model";
 
 export const hashPassword = async (password: string): Promise<string> => {
   const saltRounds = 10;
