@@ -10,4 +10,8 @@ export default class Service<T> implements IService<T> {
   async find(filter: Partial<T>): Promise<T[]> {
     return await this.repository.find(filter);
   }
+
+  async findOne(filter: Partial<T>): Promise<T | null> {
+    return await this.repository.findOne(filter);
+  }
 }

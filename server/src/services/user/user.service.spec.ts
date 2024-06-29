@@ -37,14 +37,14 @@ describe("User Service", () => {
   describe("login", () => {
     test("should return user if given correct credentials", async () => {
       // Mock userRepository.find to return array containing test user
-      userRepository.find = jest.fn().mockResolvedValue([testUser]);
+      userRepository.findOne = jest.fn().mockResolvedValue(testUser);
 
       const result = await userService.login(testUser.email, "password123");
       expect(result).toEqual(testUser);
     });
     test("should not return user if given incorrect password", async () => {
       // Mock userRepository.find to return array containing test user
-      userRepository.find = jest.fn().mockResolvedValue([testUser]);
+      userRepository.findOne = jest.fn().mockResolvedValue(testUser);
 
       try {
         const result = await userService.login(testUser.email, "wrongpassword");
@@ -56,7 +56,7 @@ describe("User Service", () => {
 
     test("should not return user if given incorrect email", async () => {
       // Mock userRepository.find to return array containing test user
-      userRepository.find = jest.fn().mockResolvedValue([testUser]);
+      userRepository.findOne = jest.fn().mockResolvedValue(testUser);
 
       try {
         const result = await userService.login("wrongemail", "password123");

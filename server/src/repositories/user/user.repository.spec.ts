@@ -63,16 +63,6 @@ describe("User Repository", () => {
   });
 
   describe("find", () => {
-    test("should only find one user when given email", async () => {
-      // Mock User.find to return the test user
-      User.find = jest.fn().mockReturnValue({
-        exec: jest.fn().mockResolvedValue([testUser]),
-      });
-
-      const users = await userRepository.find({ email: testUser.email });
-      expect(users.length).toEqual(1);
-      expect(users[0]).toEqual(testUser);
-    });
     test("should find multiple users with the same name", async () => {
       User.find = jest.fn().mockReturnValue({
         exec: jest.fn().mockResolvedValue([testUser, testUser]),
@@ -81,6 +71,19 @@ describe("User Repository", () => {
       const users = await userRepository.find({ name: testUser.name });
       expect(users.length).toEqual(2);
       expect(users[0].name).toEqual(users[1].name);
+    });
+  });
+
+  describe("findOne", () => {
+    test("should find one user with the the given email", async () => {
+      User.findOne = jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(testUser),
+      });
+
+      const user = await userRepository.findOne({ email: testUser.email });
+      // expect(users.length).toEqual(2);
+      expect(user).not.toBeNull();
+      expect(user?.name).toEqual(testUser.name);
     });
   });
 });

@@ -23,19 +23,21 @@ export default class UserController {
       const email = req.body.email;
       const password = req.body.password;
       const user = await this.userService.login(email, password);
-      // const user = await this.userService.login(
-      //   req.body.email,
-      //   req.body.password
-      // );
       // Respond with JWT
-      res.status(200).json({ token: "generateToken(user)" });
+      res.status(200).json({ token: generateToken(user) });
     } catch (error: any) {
       // Get status code and message from error handler
       errorHandler(res, error);
     }
   }
 
-  async search(req: Request, res: Response) {
+  async find(req: Request, res: Response) {
+    // const params = req.url.split("?")[1].toString();
+    // console.log(params);
+    const { user, ...params } = req.body;
+    const result = await this.userService.find(params);
+    console.log(result);
+    res.status(200).json("ok");
     // await verifyToken(req.headers.authorization)
     // console.log(req.headers);
     // res.status(200).json("ok");

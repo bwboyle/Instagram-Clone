@@ -4,6 +4,7 @@ import UserController from "./controllers/user/user.controller";
 import UserService from "./services/user/user.service";
 import UserRepository from "./repositories/user/user.repository";
 import { User } from "./models/user.model";
+import { authenticate } from "./utils";
 
 const app = express();
 
@@ -23,8 +24,8 @@ app.get("/api/user", (req, res) => {
   userController.login(req, res);
 });
 
-app.get("/api/user/search", (req, res) => {
-  userController.search(req, res);
+app.post("/api/user/find", authenticate, (req, res) => {
+  userController.find(req, res);
 });
 
 export default app;

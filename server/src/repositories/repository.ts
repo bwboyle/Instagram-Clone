@@ -8,7 +8,29 @@ export default class Repository<T> implements IRepository<T> {
     return await this.model.create(item);
   }
 
+  async findOne(filter: Partial<T>): Promise<T | null> {
+    return await this.model.findOne(filter).exec();
+  }
+
   async find(filter: Partial<T>): Promise<T[]> {
-    return await this.model.find(filter).exec();
+    // Filter object for pattern matching
+    const patternFilter = this.getPatternFilter(filter);
+    return await this.model.find(patternFilter).exec();
+  }
+
+  private getPatternFilter(filter: Partial<T>): any {
+    const patternFilter: any = {};
+
+    for (const key in filter) {
+      if (filter[key] && typeof filter[key] === "string") {
+        // If the filter value is a string, use regex for pattern matching
+        patternFilter[key] = { $regex: filter[key], $options: "i" }; // 'i' for case-insensitive
+      } else {
+        // Otherwise, use exact match
+        patternFilter[key] = filter[key];
+      }
+    }
+
+    return patternFilter;
   }
 }
