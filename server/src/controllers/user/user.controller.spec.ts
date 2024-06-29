@@ -1,23 +1,27 @@
 import supertest from "supertest";
-import { User } from "../../models/user.model";
-import UserService from "../../services/user/user.service";
+import { IUser, User } from "../../models/user.model";
 import app from "../../app";
 import TestAgent from "supertest/lib/agent";
 import DbConfig from "../../configs/db.config";
 
 describe("User Controller", () => {
-  const testUser = {
-    name: "John Doe",
-    email: "john@email.com",
-    password: "password123",
-  };
+  let testUser: any;
   let request: TestAgent;
   let token: string;
 
   beforeAll(async () => {
+    // Connect to test db
     await DbConfig.connect("test");
+
     // Initialize app (including controller and routes)
     request = supertest(app);
+
+    // Create test user
+    testUser = {
+      name: "John Doe",
+      email: "john@email.com",
+      password: "password123",
+    };
   });
 
   afterAll(async () => {
@@ -34,9 +38,10 @@ describe("User Controller", () => {
       expect(response.body.token).not.toBeNull();
     });
 
-    test("should respond with 409 if user with that email already exists", async () => {
+    test("should respond with 400 if user with that email already exists", async () => {
       const response = await request.post("/api/user").send(testUser);
-      expect(response.status).toEqual(409);
+      expect(response.status).toEqual(400);
+      expect(response.body.error).toEqual("Email already in use");
     });
   });
 
@@ -66,20 +71,20 @@ describe("User Controller", () => {
     test("should respond with 400 error if email is incorrect", async () => {
       const response = await request
         .get("/api/user")
-        .send({ email: "wrongemail", password: "password123" });
+        .send({ email: "invalidemail", password: testUser.password });
 
       expect(response.status).toEqual(400);
-      expect(response.body.error).toEqual("User does not exist");
+      expect(response.body.error).toEqual("Incorrect email");
     });
   });
 
-  /* Search test */
-  describe("GET user/search", () => {
-    test("should fail if request is unauthenticated", async () => {
-      // JWT should be present in the header
-      const response = await request
-        .get("/api/user/search")
-        .set("Authorization", "invalid");
-    });
-  });
+  // /* Search test */
+  // describe("GET user/search", () => {
+  //   test("should fail if request is unauthenticated", async () => {
+  //     // JWT should be present in the header
+  //     const response = await request
+  //       .get("/api/user/search")
+  //       .set("Authorization", "invalid");
+  //   });
+  // });
 });

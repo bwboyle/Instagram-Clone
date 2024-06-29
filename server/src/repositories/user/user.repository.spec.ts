@@ -1,4 +1,3 @@
-import DbConfig from "../../configs/db.config";
 import { IUser, User } from "../../models/user.model";
 import UserRepository from "./user.repository";
 import { Types } from "mongoose";

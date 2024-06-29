@@ -1,6 +1,5 @@
 import { configDotenv } from "dotenv";
-import mongoose, { ConnectOptions, mongo, Mongoose } from "mongoose";
-import { resolve } from "path";
+import mongoose, { Mongoose } from "mongoose";
 
 configDotenv();
 

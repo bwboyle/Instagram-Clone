@@ -1,8 +1,7 @@
 import { IUser, User } from "../../models/user.model";
 import UserRepository from "../../repositories/user/user.repository";
-import { hashPassword } from "../../utils/password.utils";
 import UserService from "./user.service";
-import { ObjectId, Types } from "mongoose";
+import { Types } from "mongoose";
 
 describe("User Service", () => {
   const testUserData: IUser = {
@@ -43,7 +42,7 @@ describe("User Service", () => {
       const result = await userService.login(testUser.email, "password123");
       expect(result).toEqual(testUser);
     });
-    test("should not return user if given incorrect credentials", async () => {
+    test("should not return user if given incorrect password", async () => {
       // Mock userRepository.find to return array containing test user
       userRepository.find = jest.fn().mockResolvedValue([testUser]);
 
@@ -52,6 +51,18 @@ describe("User Service", () => {
         expect(result).toEqual(testUser);
       } catch (error: any) {
         expect(error.message).toEqual("Incorrect password");
+      }
+    });
+
+    test("should not return user if given incorrect email", async () => {
+      // Mock userRepository.find to return array containing test user
+      userRepository.find = jest.fn().mockResolvedValue([testUser]);
+
+      try {
+        const result = await userService.login("wrongemail", "password123");
+        expect(result).toEqual(testUser);
+      } catch (error: any) {
+        expect(error.message).toEqual("Incorrect email");
       }
     });
   });

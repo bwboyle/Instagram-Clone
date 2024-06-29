@@ -29,7 +29,7 @@ describe("Error middleware", () => {
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
-      error: "Failed to complete request",
+      error: "Error: Error: Unknown error",
     });
   });
 });

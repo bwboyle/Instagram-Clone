@@ -8,9 +8,9 @@
     "dev": "nodemon src/server.ts",
     "test": "jest --watchAll",
     "test:utils": "jest --watchAll --testPathPattern=src/utils",
-    "test:repositories": "jest src/repositories/**/*.spec.ts --watchAll",
-    "test:services": "jest src/services/**/*.spec.ts --watchAll",
-    "test:controllers": "jest src/controllers/**/*.spec.ts --watchAll"
+    "test:repositories": "jest --watchAll --testPathPattern=src/repositories",
+    "test:services": "jest --watchAll --testPathPattern=src/services",
+    "test:controllers": "jest --watchAll --testPathPattern=src/controllers"
   },
   "keywords": [],
   "author": "",
