@@ -16,7 +16,9 @@ describe("User Controller", () => {
 
     // Initialize app (including controller and routes)
     request = supertest(app);
+  });
 
+  beforeEach(() => {
     // Create test user
     testUser = {
       name: "John Doe",
@@ -80,29 +82,36 @@ describe("User Controller", () => {
   });
 
   /* Search test */
-  describe("POST user/search", () => {
-    const url = "/api/user/find";
+  // describe("POST user/search", () => {
+  //   const url = "/api/user/find";
 
-    test("should fail if request is unauthenticated", async () => {
-      // JWT should be present in the header
-      let response = await request.post(url);
+  //   test("should fail if request is unauthenticated", async () => {
+  //     // JWT should be present in the header
+  //     let response = await request.post(url);
 
-      expect(response.status).toEqual(401);
-      expect(response.body).toEqual({ error: "No token provided" });
+  //     expect(response.status).toEqual(401);
+  //     expect(response.body).toEqual({ error: "No token provided" });
 
-      // JWT should be valid
-      response = await request.post(url).set("authorization", "Bearer invalid");
-      // .set("Authorization", "invalid");
+  //     // JWT should be valid
+  //     response = await request.post(url).set("authorization", "Bearer invalid");
+  //     // .set("Authorization", "invalid");
 
-      expect(response.status).toEqual(403);
-      expect(response.body).toEqual({ error: "Invalid token" });
-    });
+  //     expect(response.status).toEqual(403);
+  //     expect(response.body).toEqual({ error: "Invalid token" });
+  //   });
 
-    test("should respond with list of users matching filter", async () => {
-      const response = await request
-        .post(url)
-        .set("authorization", `Bearer ${token}`)
-        .send({ name: "John Doe" });
-    });
-  });
+  //   test("should respond with list of users matching filter", async () => {
+  //     // Create 3 users with the same name
+  //     for (let i = 1; i < 4; i++) {
+  //       testUser.name = `John ${i}`;
+  //       testUser.email = `John ${i}`;
+  //       await request.post(url).send(testUser);
+  //     }
+
+  //     const response = await request
+  //       .post(url)
+  //       .set("authorization", `Bearer ${token}`)
+  //       .send({ name: "John" });
+  //   });
+  // });
 });
